@@ -6,6 +6,7 @@ use base64::Engine as _;
 use url::Url;
 
 use crate::fetcher::Fetcher;
+use crate::progress::{DownloadKind, Progress};
 
 #[derive(Debug, Clone, Copy)]
 pub enum AssetKind {
@@ -38,41 +39,62 @@ pub struct AssetStore {
     out_dir: PathBuf,
     assets_dir_name: String,
     fetcher: Fetcher,
+    progress: Option<std::sync::Arc<Progress>>,
     entries: tokio::sync::Mutex<
         HashMap<String, std::sync::Arc<tokio::sync::OnceCell<Result<String, String>>>>,
     >,
 }
 
 impl AssetStore {
-    pub fn new_dir(out_dir: PathBuf, assets_dir_name: String, fetcher: Fetcher) -> Self {
+    pub fn new_dir(
+        out_dir: PathBuf,
+        assets_dir_name: String,
+        fetcher: Fetcher,
+        progress: Option<std::sync::Arc<Progress>>,
+    ) -> Self {
         Self {
             mode: OutputMode::Dir,
             out_dir,
             assets_dir_name,
             fetcher,
+            progress,
             entries: tokio::sync::Mutex::new(HashMap::new()),
         }
     }
 
-    pub fn new_single(out_dir: PathBuf, fetcher: Fetcher) -> Self {
+    pub fn new_single(
+        out_dir: PathBuf,
+        fetcher: Fetcher,
+        progress: Option<std::sync::Arc<Progress>>,
+    ) -> Self {
         Self {
             mode: OutputMode::Single,
             out_dir,
             assets_dir_name: "assets".to_string(),
             fetcher,
+            progress,
             entries: tokio::sync::Mutex::new(HashMap::new()),
         }
     }
 
     pub async fn get(&self, request: AssetRequest) -> anyhow::Result<String> {
+        let kind = request.kind;
         let key = request_key(&request);
-        let cell = {
+        let (cell, is_unique) = {
             let mut entries = self.entries.lock().await;
-            entries
-                .entry(key)
-                .or_insert_with(|| std::sync::Arc::new(tokio::sync::OnceCell::new()))
-                .clone()
+            match entries.entry(key) {
+                std::collections::hash_map::Entry::Occupied(e) => (e.get().clone(), false),
+                std::collections::hash_map::Entry::Vacant(e) => (
+                    e.insert(std::sync::Arc::new(tokio::sync::OnceCell::new()))
+                        .clone(),
+                    true,
+                ),
+            }
         };
+
+        if let Some(p) = &self.progress {
+            p.asset_request(kind, is_unique);
+        }
 
         let stored = cell
             .get_or_init(|| async {
@@ -89,8 +111,8 @@ impl AssetStore {
         }
     }
 
-    pub async fn fetch_remote_text(&self, url: Url) -> anyhow::Result<String> {
-        let (bytes, _headers) = self.fetcher.get_bytes(url.clone()).await?;
+    pub async fn fetch_remote_text(&self, url: Url, kind: DownloadKind) -> anyhow::Result<String> {
+        let (bytes, _headers) = self.fetcher.get_bytes(url.clone(), kind).await?;
         let text = String::from_utf8(bytes.to_vec())
             .with_context(|| format!("remote text at {} is not valid utf-8", url))?;
         Ok(text)
@@ -104,10 +126,17 @@ impl AssetStore {
         &self.assets_dir_name
     }
 
+    pub fn progress(&self) -> Option<&Progress> {
+        self.progress.as_deref()
+    }
+
     async fn fetch_and_store(&self, request: &AssetRequest) -> anyhow::Result<String> {
         let (bytes, content_type_hint) = match &request.source {
             AssetSource::Remote(url) => {
-                let (bytes, headers) = self.fetcher.get_bytes(url.clone()).await?;
+                let (bytes, headers) = self
+                    .fetcher
+                    .get_bytes(url.clone(), DownloadKind::Asset(request.kind))
+                    .await?;
                 let ct = headers
                     .get(reqwest::header::CONTENT_TYPE)
                     .and_then(|v| v.to_str().ok())

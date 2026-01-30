@@ -43,6 +43,13 @@ Use built-in minimal theme (light/dark):
 
 `./target/release/discourse-topic-render --input topic.json --base-url https://forum.example.com --builtin-css --mode dir --out out`
 
+## Progress UI
+
+By default, the tool shows a progress UI when stderr is a TTY (`--progress auto`).
+
+- Disable it (useful for CI / piping): `--progress never`
+- Force-enable it: `--progress always`
+
 ## Notes on `topic.json`
 
 This tool expects `post_stream.posts[].cooked` to be present for all posts you want to render.

@@ -18,6 +18,16 @@ pub enum OfflineMode {
     Loose,
 }
 
+#[derive(Debug, Clone, Copy, ValueEnum)]
+pub enum ProgressMode {
+    /// Enable progress UI when stderr is a TTY.
+    Auto,
+    /// Always enable progress UI (even when piped).
+    Always,
+    /// Never show progress UI.
+    Never,
+}
+
 #[derive(Debug, Parser)]
 #[command(author, version, about)]
 pub struct Args {
@@ -69,4 +79,8 @@ pub struct Args {
     /// HTTP User-Agent used for downloading assets.
     #[arg(long, default_value = "discourse-topic-render/0.1")]
     pub user_agent: String,
+
+    /// Progress display: `auto`, `always`, or `never`.
+    #[arg(long, value_enum, default_value = "auto")]
+    pub progress: ProgressMode,
 }

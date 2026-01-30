@@ -7,6 +7,7 @@ use regex::Regex;
 use url::Url;
 
 use crate::assets::{AssetKind, AssetRequest, AssetSource, AssetStore};
+use crate::progress::DownloadKind;
 
 #[derive(Debug, Clone)]
 pub enum CssOrigin {
@@ -50,7 +51,7 @@ pub async fn discover_css_origins_from_base_url(
     store: &AssetStore,
 ) -> anyhow::Result<Vec<CssOrigin>> {
     let html = store
-        .fetch_remote_text(base_url.clone())
+        .fetch_remote_text(base_url.clone(), DownloadKind::Html)
         .await
         .with_context(|| format!("download html {}", base_url))?;
 
@@ -102,7 +103,7 @@ async fn load_css_recursive(
             std::fs::read_to_string(path).with_context(|| format!("read css {}", path.display()))?
         }
         CssOrigin::Remote(url) => store
-            .fetch_remote_text(url.clone())
+            .fetch_remote_text(url.clone(), DownloadKind::Css)
             .await
             .with_context(|| format!("download css {}", url))?,
     };

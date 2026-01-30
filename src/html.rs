@@ -59,6 +59,10 @@ pub async fn render_posts(
             avatar_src,
             cooked_html,
         });
+
+        if let Some(p) = store.progress() {
+            p.post_done(post.post_number);
+        }
     }
     Ok(rendered)
 }

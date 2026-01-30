@@ -134,6 +134,7 @@ body {{
         assets_dir_name: "assets".to_string(),
         max_concurrency: 4,
         user_agent: "test-agent".to_string(),
+        progress: discourse_topic_render::ProgressMode::Never,
     };
     discourse_topic_render::run(args).await.unwrap();
 
@@ -162,6 +163,7 @@ body {{
         assets_dir_name: "assets".to_string(),
         max_concurrency: 4,
         user_agent: "test-agent".to_string(),
+        progress: discourse_topic_render::ProgressMode::Never,
     };
     discourse_topic_render::run(args).await.unwrap();
 
@@ -265,6 +267,7 @@ body { background-image: url("/bg.png"); }
         assets_dir_name: "assets".to_string(),
         max_concurrency: 4,
         user_agent: "test-agent".to_string(),
+        progress: discourse_topic_render::ProgressMode::Never,
     };
     discourse_topic_render::run(args).await.unwrap();
 
@@ -293,6 +296,7 @@ body { background-image: url("/bg.png"); }
         assets_dir_name: "assets".to_string(),
         max_concurrency: 4,
         user_agent: "test-agent".to_string(),
+        progress: discourse_topic_render::ProgressMode::Never,
     };
     discourse_topic_render::run(args).await.unwrap();
 
@@ -354,6 +358,7 @@ async fn builtin_css_skips_css_crawl() {
         assets_dir_name: "assets".to_string(),
         max_concurrency: 4,
         user_agent: "test-agent".to_string(),
+        progress: discourse_topic_render::ProgressMode::Never,
     };
     discourse_topic_render::run(args).await.unwrap();
 
@@ -383,6 +388,7 @@ async fn builtin_css_skips_css_crawl() {
         assets_dir_name: "assets".to_string(),
         max_concurrency: 4,
         user_agent: "test-agent".to_string(),
+        progress: discourse_topic_render::ProgressMode::Never,
     };
     discourse_topic_render::run(args).await.unwrap();
 
