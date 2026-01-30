@@ -1,0 +1,26 @@
+[package]
+name = "discourse-topic-render"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+anyhow = "1.0.86"
+async-recursion = "1.1.1"
+base64 = "0.22.1"
+blake3 = "1.5.5"
+bytes = "1.7.2"
+clap = { version = "4.5.23", features = ["derive"] }
+kuchiki = "0.8.1"
+maud = "0.26.0"
+regex = "1.11.1"
+reqwest = { version = "0.12.9", default-features = false, features = ["brotli", "gzip", "http2", "rustls-tls"] }
+serde = { version = "1.0.210", features = ["derive"] }
+serde_json = "1.0.128"
+tokio = { version = "1.41.0", features = ["macros", "rt-multi-thread", "time"] }
+tracing = "0.1.40"
+tracing-subscriber = { version = "0.3.18", features = ["env-filter"] }
+url = "2.5.4"
+
+[dev-dependencies]
+httpmock = "0.7.0"
+tempfile = "3.14.0"
