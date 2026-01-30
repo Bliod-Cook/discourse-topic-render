@@ -3,68 +3,80 @@
   --dtr-scroll-offset: 64px;
   scroll-padding-top: var(--dtr-scroll-offset);
   --bg: #ffffff;
-  --surface: #f7f7f8;
-  --surface-2: #ffffff;
+  --surface: #ffffff;
+  --surface-2: #f7f7f8;
   --text: #111827;
   --muted: #6b7280;
   --border: #e5e7eb;
   --link: #2563eb;
   --link-visited: #7c3aed;
   --focus: #2563eb;
-  --code-bg: #0b1020;
-  --code-text: #e5e7eb;
-  --inline-code-bg: rgba(0, 0, 0, 0.06);
-  --shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+  --code-bg: #f6f8fa;
+  --code-text: #24292f;
+  --inline-code-bg: rgba(175, 184, 193, 0.2);
+  --shadow: none;
+  --quote-bg: #f0f9ff;
+  --quote-border: #0ea5e9;
+  --quote-text: #0c4a6e;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #0b0f14;
-    --surface: #101826;
-    --surface-2: #0f172a;
+    --bg: #111111;
+    --surface: #111111;
+    --surface-2: #1e1e1e;
     --text: #e5e7eb;
     --muted: #9ca3af;
-    --border: #243041;
-    --link: #60a5fa;
-    --link-visited: #c4b5fd;
-    --focus: #60a5fa;
-    --code-bg: #0a0f1a;
+    --border: #333333;
+    --link: #3b82f6;
+    --link-visited: #a78bfa;
+    --focus: #3b82f6;
+    --code-bg: #161b22;
     --code-text: #e5e7eb;
-    --inline-code-bg: rgba(255, 255, 255, 0.08);
+    --inline-code-bg: rgba(110, 118, 129, 0.4);
     --shadow: none;
+    --quote-bg: rgba(30, 58, 138, 0.25);
+    --quote-border: #3b82f6;
+    --quote-text: #bfdbfe;
   }
 }
 
 html[data-theme="light"] {
   --bg: #ffffff;
-  --surface: #f7f7f8;
-  --surface-2: #ffffff;
+  --surface: #ffffff;
+  --surface-2: #f7f7f8;
   --text: #111827;
   --muted: #6b7280;
   --border: #e5e7eb;
   --link: #2563eb;
   --link-visited: #7c3aed;
   --focus: #2563eb;
-  --code-bg: #0b1020;
-  --code-text: #e5e7eb;
-  --inline-code-bg: rgba(0, 0, 0, 0.06);
-  --shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+  --code-bg: #f6f8fa;
+  --code-text: #24292f;
+  --inline-code-bg: rgba(175, 184, 193, 0.2);
+  --shadow: none;
+  --quote-bg: #f0f9ff;
+  --quote-border: #0ea5e9;
+  --quote-text: #0c4a6e;
 }
 
 html[data-theme="dark"] {
-  --bg: #0b0f14;
-  --surface: #101826;
-  --surface-2: #0f172a;
+  --bg: #111111;
+  --surface: #111111;
+  --surface-2: #1e1e1e;
   --text: #e5e7eb;
   --muted: #9ca3af;
-  --border: #243041;
-  --link: #60a5fa;
-  --link-visited: #c4b5fd;
-  --focus: #60a5fa;
-  --code-bg: #0a0f1a;
+  --border: #333333;
+  --link: #3b82f6;
+  --link-visited: #a78bfa;
+  --focus: #3b82f6;
+  --code-bg: #161b22;
   --code-text: #e5e7eb;
-  --inline-code-bg: rgba(255, 255, 255, 0.08);
+  --inline-code-bg: rgba(110, 118, 129, 0.4);
   --shadow: none;
+  --quote-bg: rgba(30, 58, 138, 0.25);
+  --quote-border: #3b82f6;
+  --quote-text: #bfdbfe;
 }
 
 * {
@@ -166,18 +178,21 @@ a:visited {
 
 .dtr-post {
   scroll-margin-top: var(--dtr-scroll-offset);
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 16px;
-  box-shadow: var(--shadow);
-  margin: 0 0 14px;
+  background: transparent;
+  border-bottom: 1px solid var(--border);
+  padding: 24px 0;
+  margin: 0;
+}
+
+.dtr-post:last-child {
+  border-bottom: none;
 }
 
 .dtr-post-header {
   display: flex;
   align-items: flex-start;
   gap: 12px;
+  margin-bottom: 12px;
 }
 
 .dtr-post-avatar {
@@ -205,7 +220,8 @@ a:visited {
 }
 
 .dtr-username {
-  font-weight: 650;
+  font-weight: 700;
+  font-size: 1.05rem;
 }
 
 .dtr-post-sub {
@@ -222,7 +238,14 @@ a:visited {
 }
 
 .dtr-cooked {
-  margin-top: 12px;
+  margin-top: 8px;
+  padding-left: 52px; /* Align with content, offset by avatar (40px + 12px gap) */
+}
+
+@media (max-width: 600px) {
+  .dtr-cooked {
+    padding-left: 0;
+  }
 }
 
 .dtr-cooked > :first-child {
@@ -247,10 +270,11 @@ a:visited {
 .dtr-cooked blockquote {
   margin: 0.8em 0;
   padding: 0.7em 0.9em;
-  border: 1px solid var(--border);
+  border: 1px solid var(--quote-border);
   border-left-width: 4px;
-  background: var(--surface-2);
-  border-radius: 12px;
+  background: var(--quote-bg);
+  color: var(--quote-text);
+  border-radius: 8px;
 }
 
 .dtr-cooked pre,
@@ -262,21 +286,23 @@ a:visited {
 .dtr-cooked code {
   background: var(--inline-code-bg);
   padding: 0.14em 0.36em;
-  border-radius: 7px;
+  border-radius: 6px;
 }
 
 .dtr-cooked pre {
   margin: 0.8em 0;
   background: var(--code-bg);
   color: var(--code-text);
-  padding: 12px;
+  padding: 16px;
   border-radius: 12px;
   overflow: auto;
+  border: 1px solid var(--border);
 }
 
 .dtr-cooked pre code {
   background: transparent;
   padding: 0;
+  border-radius: 0;
 }
 
 .dtr-cooked hr {
